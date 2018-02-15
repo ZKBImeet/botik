@@ -339,8 +339,8 @@ def main():
     while True:
         pass
 
-#if __name__ == '__main__':
+if __name__ == '__main__':
     
     #app = Flask(__name__)
-    #main()
+    main()
 
