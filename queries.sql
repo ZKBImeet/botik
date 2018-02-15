@@ -1,0 +1,1 @@
+select concat('KILL ',id,';') from information_schema.processlist where user='Sirdimko';

@@ -1,0 +1,127 @@
+## -*- coding: utf8 -*-
+import MySQLdb;
+import constants;
+
+#Class works with MySQL
+class db_mysql:
+    bConnected = False;
+    db = None;
+    logger = None;
+
+    def __init__(self, logger):
+        self.logger = logger;
+
+
+    def connect(self):
+        try:
+            self.db=MySQLdb.connect(host="example.com",user="user",
+                              passwd="pass",db="db", use_unicode=True, charset="utf8");
+            self.logger.info(msg="Подключение к БД MySQL успешно...");
+            self.bConnected = True;
+        except BaseException as e:
+            self.logger.exception("Не удалось подключиться к БД - " + str(e));
+            self.bConnected = False;
+
+    def query(self, sql):
+        cur = None;
+
+        try:
+            cur = self.db.cursor(MySQLdb.cursors.DictCursor)
+            # print(sql);
+            cur.execute(sql);
+        except BaseException as e:
+            self.connect();
+            cur = self.db.cursor(MySQLdb.cursors.DictCursor)
+            cur.execute(sql);
+
+        return cur.fetchall()
+
+    def save(self, sql):
+        cur = None;
+
+        try:
+            cur = self.db.cursor(MySQLdb.cursors.DictCursor)
+            # print(sql);
+            cur.execute(sql);
+            self.db.commit();
+        except BaseException as e:
+            self.logger.exception("Не удалось выполнить запрос - " + str(e));
+            self.db.rollback();
+            return None;
+
+
+
+class db_chat:
+    db = None;
+    logger = None;
+
+    def __init__(self, logger, db):
+        self.logger = logger;
+        self.db = db;
+
+    def registerchat(self, chat):
+        sql = constants.sql_save_user % (chat.chat_id, chat.tele_user, chat.currentaction, chat.currentoperation,
+                                         chat.currentaction, chat.currentoperation);
+        # print(sql);
+        self.db.save(sql);
+
+       # if len(c.fetch_row()) == 0:
+    #        self.db.db.execute(
+    #          """insert into tUsers(chat_id, tele_user, isadmin)
+    #          VALUES (%s, %s, %s)""" % (chat.chat_id, chat.tele_user, chat.isadmin )
+    #          );
+    #        self.db.db.commit();
+
+class db_questions:
+    db = None;
+    logger = None;
+    tup_meeting = ();
+
+    def __init__(self, logger, db):
+        self.logger = logger;
+        self.db = db;
+
+    def load(self):
+        sql = """SELECT * FROM tMeeting WHERE now() between dt_b and dt_e and is_active = 1""";
+        self.tup_meeting = self.db.query(sql);
+
+    def getidbyname(self, name):
+        for rec in self.tup_meeting:
+            if rec.get("name") == name:
+                return rec.get("meet_id");
+        return -1;
+
+    def save(self, chat):
+        sql = constants.sql_save_question % (chat.chat_id, chat.n_value, chat.s_value2 + ' - ' + chat.s_value3);
+        # print(sql);
+        self.db.save(sql);
+
+class db_subject:
+    db = None;
+    logger = None;
+    tup_subj = ();
+
+    def __init__(self, logger, db):
+        self.logger = logger;
+        self.db = db;
+
+    def load(self, meet_id):
+        sql = """select s.*, sm.subjmeet_id
+                  from tSubjMeet sm, tSubject s
+                 where sm.meet_id = %s
+                   and s.id = sm.subj_id
+                   and sm.is_active = 1""" % meet_id ;
+        self.tup_subj = self.db.query(sql);
+
+    def getidbyname(self, meet_id, name):
+        self.load(meet_id);
+        for rec in self.tup_subj:
+            if rec.get("name") == name:
+                return rec.get("subjmeet_id");
+        return -1;
+   # if len(c.fetch_row()) == 0:
+    #        self.db.db.execute(
+    #          """insert into tUsers(chat_id, tele_user, isadmin)
+    #          VALUES (%s, %s, %s)""" % (chat.chat_id, chat.tele_user, chat.isadmin )
+    #          );
+    #        self.db.db.commit();
