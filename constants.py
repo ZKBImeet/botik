@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-#CHANNEL_NAME = '-1001351153971'
+#CHANNEL_NAME = '-1001351153971' #канал вопросов
 CHANNEL_NAME = '@test_chanckbi'
+CHANNEL_NAME_ADM = '-1001315761021'
 #TOKEN = app.config['TOKEN']
 #WEBHOOKURL = app.config['WEBHOOKURL']
 #BOT_URL = 'https://api.telegram.org/bot'
@@ -40,7 +41,7 @@ imVote      = u'\U00002611';
 
 ButtonMeeting           = imNews + 'Задать вопрос'
 ButtonHBD               = imHBD + 'Что впереди'
-ButtonRecl              = imRecl + 'Рекламации'
+ButtonRecl              = imRecl + 'Отправить Feedback разработчикам'
 ButtonMyState           = imMyState + 'Мой статус'
 ButtonProjInfo          = imProjInfo + 'Проект-инфо'
 ButtonAdmin             = imAdmin + 'Администрирование'
@@ -64,7 +65,7 @@ ButtonYes            = imOk + 'Да'
 ButtonNo             = imNo + 'Нет'
 ButtonNextMetadata   = imInfo + 'Еще'
 
-welcomeText     =  "Добро пожаловать на собрание!\nЗадайте свой вопрос:"
+welcomeText     =  "Добро пожаловать в наш Бот!\nЗдесь Вы можете:\n   1. Задать вопрос руководству в канал вопросов Департамента фабрики данных (https://t.me/ckmeet_questions)\n   2. Осуществить обратную связь с разработчиками по вопросам работы бота и каналов"
 GErrorText      =  'Вах-вах-вах... Произошла непредвиденная ошибка.\nПовторите операцию или попробуйте что-то еще.\n' \
                    'Нам не безразличны Ваши проблемы!\nМы ими займемся в ближайшее время...'
 

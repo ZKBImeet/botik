@@ -57,6 +57,71 @@ def send_image(p_ChatID, msgtxt, img_file, bPortal=False, Portal=None, Button=te
     except BaseException as e:
         logger.exception("ИД чата - " + str(p_ChatID) + " - " + str(e))
 
+def sendmesquery(message, txt, repmarkup=None, typemsg=1, imgtext=None, chat_id= None):
+    # -1 - Значение не принято
+    # 1 - запрос данных
+    # 2 - Запрос обработан
+    # 4 - Для информации
+    # иначе - свободное форматирование
+
+    if typemsg == 1:
+        text = constants.imPencel + "<i>" + txt + "</i>";
+    elif typemsg == 2:
+        text = constants.imDone + txt;
+    elif typemsg == -1:
+        text = constants.imIncorrect + "<i>" + txt + "</i>";
+    elif typemsg == 4:
+        text = constants.imInfo + txt;
+    else:
+        if imgtext is not None:
+            text = imgtext + txt;
+        else:
+            text = txt;
+
+    #Берем чат либо из сообщения, либо из переменной
+    chat = chat_id;
+    if chat == None:
+        chat = message.chat.id;
+
+    bot.send_message(chat, text,
+                     reply_markup=repmarkup,
+                     parse_mode='HTML')
+
+def sendmesquerylike(message, CHANNEL_NAME):
+    try:
+
+        reply_markup_mass = {'0': {
+                    'reply_markup': {'inline_keyboard': [[
+                        {'text':u'\ud83d\udc4d 0','callback_data':'1'},
+                        {'text':u'\ud83d\udc4e 0','callback_data':'-1'}
+                                                    ]]
+                                                    },
+                                    'count': {} # [+1, -1]
+                                  }
+                        }
+        #markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
+        #itembtn1 = telebot.types.KeyboardButton('a')
+        #itembtn2 = telebot.types.KeyboardButton('v')
+        #itembtn3 = telebot.types.KeyboardButton('d')
+        #markup.add(itembtn1, itembtn2, itembtn3)
+
+        # To Post into a Channel
+    #                bot.send_message(constants.CHANNEL_NAME, message.text,
+    #                         parse_mode='HTML',
+    #                         reply_markup=markup);
+        data = {'chat_id': CHANNEL_NAME,
+                'text': message.text,
+                'reply_markup': json.dumps(reply_markup_mass['0']['reply_markup'])}
+        requests.get(BOT_URL+'sendMessage',data = data)
+        #requests.send_message(constants.CHANNEL_NAME, message.text,
+        #         parse_mode='HTML',
+        #         reply_markup=markup);
+        #Its Ok
+        return 0;
+    except BaseException as e:
+        logger.exception("ИД чата - " + str(v.chat_id) + " - " + str(e))
+        return -1;
+
 # Класс текущего состояния по конкретному чату.
 # У нас многопользовательский режим, поэтому сохраняем состояние
 # каждого чата в списке в своем классе. Потом придется по chat_id
@@ -90,7 +155,7 @@ class ChatClass:
         self.tele_user = teleuser
         self.user_id = -1
         self.isadmin = 0
-        self.currentaction = 'Questions'
+        self.currentaction = ''
         self.currentoperation = 'ChangeSubj'
         self.currentoperation2 = 'No Action'
         self.s_value1 = ''
@@ -138,31 +203,6 @@ def SetCurrentChat(chat_id, teleuser, fclear):
     return ChatInd
 
 
-def sendmesquery(message, txt, repmarkup=None, typemsg=1, imgtext=None):
-    # -1 - Значение не принято
-    # 1 - запрос данных
-    # 2 - Запрос обработан
-    # 4 - Для информации
-    # иначе - свободное форматирование
-    kb = telebot.types.ReplyKeyboardMarkup(True, False);
-    kb.row('/start')
-    if typemsg == 1:
-        text = constants.imPencel + "<i>" + txt + "</i>";
-    elif typemsg == 2:
-        text = constants.imDone + txt;
-    elif typemsg == -1:
-        text = constants.imIncorrect + "<i>" + txt + "</i>";
-    elif typemsg == 4:
-        text = constants.imInfo + txt;
-    else:
-        if imgtext is not None:
-            text = imgtext + txt;
-        else:
-            text = txt;
-
-    bot.send_message(message.chat.id, text,
-                     reply_markup=kb,
-                     parse_mode='HTML')
 
 class TKeyboard:
     global AChats;
@@ -171,6 +211,12 @@ class TKeyboard:
     def kb_start(self):
         kb = telebot.types.ReplyKeyboardMarkup(True, False)
         kb.row('/start')
+        return kb
+
+    def kb_main(self):
+        kb = telebot.types.ReplyKeyboardMarkup(True, False)
+        kb.row(constants.ButtonQuestions)
+        kb.row(constants.ButtonRecl)
         return kb
 
     def kb_cancel(self):
@@ -213,7 +259,7 @@ def set_welcome(mess):
         #                 repmarkup=kb.#kb_sendcontact(), typemsg=1)
         #else:
         # Приветственное слово
-        sendmesquery(message=mess, txt="<b>" + constants.welcomeText + "</b>", typemsg=3);
+        sendmesquery(message=mess, txt="<b>" + constants.welcomeText + "</b>", typemsg=3, repmarkup=kb.kb_main());
 
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def default_test(message):
@@ -242,53 +288,51 @@ def default_test(message):
             logger.info("ИД чата - " + str(AChats[ChatInd].chat_id) + " - нажата кнопка " + constants.ButtonCancel[1:100]);
             sendmesquery(message=message,
                          txt="Операция отменена.",
-                         typemsg=2)
-            v.currentaction = 'Questions'
-            v.currentoperation = 'ChangeSubj'
+                         typemsg=2, repmarkup=kb.kb_main())
+            v.currentaction = ''
+            v.currentoperation = ''
             v.currentoperation2 = ""
             v.s_value1 = ""
             v.s_value2 = ""
             v.s_value3 = ""
             v.s_value4 = ""
-        else:
-            logger.info("ИД чата - " + str(AChats[ChatInd].chat_id) + " - задан вопрос");
-            try:
-
-                reply_markup_mass = {'0': {
-                            'reply_markup': {'inline_keyboard': [[
-                                {'text':u'\ud83d\udc4d 0','callback_data':'1'},
-                                {'text':u'\ud83d\udc4e 0','callback_data':'-1'}
-                                                            ]]
-                                                            },
-                                            'count': {} # [+1, -1]
-                                          }
-                                }
-                #markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
-                #itembtn1 = telebot.types.KeyboardButton('a')
-                #itembtn2 = telebot.types.KeyboardButton('v')
-                #itembtn3 = telebot.types.KeyboardButton('d')
-                #markup.add(itembtn1, itembtn2, itembtn3)
-
-                # To Post into a Channel
-#                bot.send_message(constants.CHANNEL_NAME, message.text,
-#                         parse_mode='HTML',
-#                         reply_markup=markup);
-                data = {'chat_id': constants.CHANNEL_NAME,
-                        'text': message.text,
-                        'reply_markup': json.dumps(reply_markup_mass['0']['reply_markup'])}
-                requests.get(BOT_URL+'sendMessage',data = data)
-                #requests.send_message(constants.CHANNEL_NAME, message.text,
-                #         parse_mode='HTML',
-                #         reply_markup=markup);
-                #Its Ok
+        elif message.text == constants.ButtonRecl:
+            sendmesquery(message=message,
+                         txt="Введите feedback в чате Бота. Он запостится администраторам системы",
+                         typemsg=1, repmarkup=kb.kb_cancel())
+            v.currentaction = 'Feedback';
+        elif v.currentaction == 'Feedback':
+            logger.info("ИД чата - " + str(AChats[ChatInd].chat_id) + " - отправлен feedback");
+            if sendmesquerylike(message, constants.CHANNEL_NAME_ADM) == 0:
                 sendmesquery(message=message,
                              txt="Ваш вопрос отправлен.",
                              typemsg=2);
                 sendmesquery(message=message,
                              txt="Если необходимо, задайте еще один вопрос:",
                              typemsg=1);
-            except BaseException as e:
-                logger.exception("ИД чата - " + str(v.chat_id) + " - " + str(e))
+            else:
+                sendmesquery(message=message,
+                             txt="произошла ошибка. Повторите ввод:",
+                             typemsg=1)
+            sendmesquery(message=message,
+                         txt="Ваш отзыв отправлен.",
+                         typemsg=2);
+        elif message.text == constants.ButtonQuestions:
+            sendmesquery(message=message,
+                         txt="Введите вопрос в чате Бота. Он запостится в канале вопросов",
+                         typemsg=1, repmarkup=kb.kb_cancel())
+            v.currentaction = 'Questions';
+        elif v.currentaction == 'Questions':
+            logger.info("ИД чата - " + str(AChats[ChatInd].chat_id) + " - задан вопрос");
+
+            if sendmesquerylike(message, constants.CHANNEL_NAME) == 0:
+                sendmesquery(message=message,
+                             txt="Ваш вопрос отправлен.",
+                             typemsg=2);
+                sendmesquery(message=message,
+                             txt="Если необходимо, задайте еще один вопрос:",
+                             typemsg=1);
+            else:
                 sendmesquery(message=message,
                              txt="произошла ошибка. Повторите ввод:",
                              typemsg=1)
@@ -340,7 +384,7 @@ def main():
         pass
 
 if __name__ == '__main__':
-    
+
     #app = Flask(__name__)
     main()
 
