@@ -8,7 +8,7 @@ from flask import Flask, request
 from telebot import types
 import json
 import requests
-#from likes import *
+from likes import *
 #import mysql_bot;
 
 BOT_URL = 'https://api.telegram.org/bot'+teletoken.token+'/'
@@ -89,34 +89,10 @@ def sendmesquery(message, txt, repmarkup=None, typemsg=1, imgtext=None, chat_id=
 
 def sendmesquerylike(message, CHANNEL_NAME):
     try:
-
-        reply_markup_mass = {'0': {
-                    'reply_markup': {'inline_keyboard': [[
-                        {'text':u'\ud83d\udc4d 0','callback_data':'1'},
-                        {'text':u'\ud83d\udc4e 0','callback_data':'-1'}
-                                                    ]]
-                                                    },
-                                    'count': {} # [+1, -1]
-                                  }
-                        }
-        #markup = telebot.types.ReplyKeyboardMarkup(row_width=2)
-        #itembtn1 = telebot.types.KeyboardButton('a')
-        #itembtn2 = telebot.types.KeyboardButton('v')
-        #itembtn3 = telebot.types.KeyboardButton('d')
-        #markup.add(itembtn1, itembtn2, itembtn3)
-
-        # To Post into a Channel
-    #                bot.send_message(constants.CHANNEL_NAME, message.text,
-    #                         parse_mode='HTML',
-    #                         reply_markup=markup);
         data = {'chat_id': CHANNEL_NAME,
                 'text': message.text,
                 'reply_markup': json.dumps(reply_markup_mass['0']['reply_markup'])}
         requests.get(BOT_URL+'sendMessage',data = data)
-        #requests.send_message(constants.CHANNEL_NAME, message.text,
-        #         parse_mode='HTML',
-        #         reply_markup=markup);
-        #Its Ok
         return 0;
     except BaseException as e:
         logger.exception("ИД чата - " + str(v.chat_id) + " - " + str(e))
@@ -370,6 +346,19 @@ def default_audio(message):  # Получить номер телефона
         sendmesquery(message=message, txt=constants.GErrorText,
                      repmarkup=None, typemsg=-1)
         logger.exception("ИД чата - " + str(chat_id) + " - " + str(e))
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def  test_callback(call):
+    #logger.info(call)
+    try:
+        editMessageReplyMarkup(constants.CHANNEL_NAME,str(call.message.message_id),str(call.from_user.id),str(call.data) )
+        return
+    except BaseException as e:
+        logger.exception(str(e))
+
+
+
 
 
 def main():
