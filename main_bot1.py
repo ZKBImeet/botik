@@ -352,7 +352,9 @@ def default_audio(message):  # Получить номер телефона
 def  test_callback(call):
     #logger.info(call)
     try:
-        editMessageReplyMarkup(constants.CHANNEL_NAME,str(call.message.message_id),str(call.from_user.id),str(call.data) )
+
+        editMessageReplyMarkup(str(call.message.chat.id),str(call.message.message_id),str(call.from_user.id),str(call.data) )
+        #editMessageReplyMarkup(str(call.id),str(call.from_user.id),str(call.data) )
         return
     except BaseException as e:
         logger.exception(str(e))

@@ -45,6 +45,7 @@ def update_reply_markup(message_id, user_id, choice_val):
 #        reply_markup_mass[message_id]['count']['-1'] = reply_markup_mass[message_id]['count']['-1']+1
 
 #    debug(json.dumps(reply_markup_mass))
+    print(reply_markup_mass)
     return reply_markup_mass[message_id]['reply_markup']
 
 #def debug(text, chat_id=ADMIN_ID):
@@ -59,10 +60,11 @@ def answerCallbackQuery(callback_query_id, text,show_alert=False):
     requests.get(BOT_URL+'answerCallbackQuery',data = data)
 
 def editMessageReplyMarkup(chat_id, message_id,user_id, choice_val):
+#def editMessageReplyMarkup(inline_message_id,user_id, choice_val):
     #print('EditMessageReplyMarkup')
     data = {"chat_id": chat_id,
         "message_id": message_id,
-        "reply_markup": json.dumps(update_reply_markup(message_id, user_id, choice_val))}
+        "reply_markup": json.dumps(update_reply_markup(chat_id+"."+message_id, user_id, choice_val))}
 
     #debug(json.dumps(data))
     requests.get(BOT_URL+'editMessageReplyMarkup',data = data)
