@@ -39,9 +39,11 @@ imPhone     = u'\U0000260E';
 imQuestion  = u'\U00002049';
 imVote      = u'\U00002611';
 
-ButtonMeeting           = imNews + 'Задать вопрос'
+#ButtonMeeting           = imNews + 'Задать вопрос'
+ButtonMeeting           = 'Задать вопрос'
 ButtonHBD               = imHBD + 'Что впереди'
-ButtonRecl              = imRecl + 'Отправить Feedback разработчикам'
+#ButtonRecl              = imRecl + 'Отправить Feedback разработчикам'
+ButtonRecl              = 'Отправить feedback'
 ButtonMyState           = imMyState + 'Мой статус'
 ButtonProjInfo          = imProjInfo + 'Проект-инфо'
 ButtonAdmin             = imAdmin + 'Администрирование'
@@ -57,7 +59,8 @@ ButtonQuestion         = imBell+'Текущие опросы'
 ButtonAdminCntUsers     = 'Количество пользователей'
 ButtonMetadata          = imInfo+'Запрос метаданных'
 ButtonTS                = imPhone + 'Тел. справочник'
-ButtonQuestions         = imQuestion + 'Задать вопрос'
+#ButtonQuestions         = imQuestion + 'Задать вопрос'
+ButtonQuestions         = 'Задать вопрос'
 ButtonVote              = imVote     + 'Проголосовать'
 
 ButtonCancel         = imCancel + 'Отмена'

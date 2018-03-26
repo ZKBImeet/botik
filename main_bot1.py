@@ -90,7 +90,7 @@ def sendmesquery(message, txt, repmarkup=None, typemsg=1, imgtext=None, chat_id=
 def sendmesquerylike(message, CHANNEL_NAME):
     try:
         data = {'chat_id': CHANNEL_NAME,
-                'text': message.text,
+                'text': message,
                 'reply_markup': json.dumps(reply_markup_mass['0']['reply_markup'])}
         requests.get(BOT_URL+'sendMessage',data = data)
         return 0;
@@ -279,7 +279,8 @@ def default_test(message):
             v.currentaction = 'Feedback';
         elif v.currentaction == 'Feedback':
             logger.info("ИД чата - " + str(AChats[ChatInd].chat_id) + " - отправлен feedback");
-            if sendmesquerylike(message, constants.CHANNEL_NAME_ADM) == 0:
+            #FEEDBACK
+            if sendmesquerylike('#feedback: '+message.text, constants.CHANNEL_NAME) == 0:
                 sendmesquery(message=message,
                              txt="Ваш вопрос отправлен.",
                              typemsg=2);
@@ -301,7 +302,7 @@ def default_test(message):
         elif v.currentaction == 'Questions':
             logger.info("ИД чата - " + str(AChats[ChatInd].chat_id) + " - задан вопрос");
 
-            if sendmesquerylike(message, constants.CHANNEL_NAME) == 0:
+            if sendmesquerylike('#question: '+message.text, constants.CHANNEL_NAME) == 0:
                 sendmesquery(message=message,
                              txt="Ваш вопрос отправлен.",
                              typemsg=2);
