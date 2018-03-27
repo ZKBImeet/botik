@@ -1,7 +1,8 @@
 teletoken.py
 mysql_bot.py
 credentials.py
-
+*.pem
+genrsa.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

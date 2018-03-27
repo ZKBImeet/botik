@@ -6,6 +6,22 @@ CHANNEL_NAME_ADM = '-1001315761021'
 #WEBHOOKURL = app.config['WEBHOOKURL']
 #BOT_URL = 'https://api.telegram.org/bot'
 
+
+WEBHOOK_HOST = 'sirdimko.pythonanywhere.com'
+
+
+WEBHOOK_SSL_CERT = '/home/Sirdimko/botik/webhook_cert.pem'  # Path to the ssl certificate
+WEBHOOK_SSL_PRIV = '/home/Sirdimko/botik/webhook_pkey.pem'  # Path to the ssl private key
+
+# Quick'n'dirty SSL certificate generation:
+#
+# openssl genrsa -out webhook_pkey.pem 2048
+# openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem
+#
+# When asked for "Common Name (e.g. server FQDN or YOUR name)" you should reply
+# with the same value in you put in WEBHOOK_HOST
+
+
 noteleuser = "Для работы с ботом ЦК BI <b>заведите</b> в своем профиле telegramm <b>username</b> для дальнейшей идентификации!\nДалее нажмите на кнопку <b>/start</b>."
 
 dir_image = 'img/'

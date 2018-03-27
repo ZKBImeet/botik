@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
-import telebot;
-import teletoken;
-import constants;
-import time;
+import telebot
+import teletoken
+import constants
+import time
 import logging
 from flask import Flask, request
 from telebot import types
@@ -10,10 +10,57 @@ import json
 import requests
 from likes import *
 #import mysql_bot;
+from telebot import types
+
+
+WEBHOOK_URL_BASE = "https://%s" % (constants.WEBHOOK_HOST)
+WEBHOOK_URL_PATH = "/%s/" % (teletoken.token)
+
+secret = teletoken.token
+bot = telebot.TeleBot(teletoken.token, threaded=False)
+
+#bot.remove_webhook()
+#time.sleep(1)
+#bot.set_webhook(url=WEBHOOK_URL_BASE+"/{}".format(secret))
+
+app = Flask(__name__)
+
+@app.route('/{}'.format(secret), methods=["POST"])
+def webhook():
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    print("Message")
+    return "ok", 200
+
+# Empty webserver index, return nothing, just http 200
+@app.route('/', methods=['GET', 'HEAD'])
+def index():
+
+    bot.remove_webhook()
+    time.sleep(1)
+    bot.set_webhook(url=WEBHOOK_URL_BASE+"/{}".format(secret))
+    
+    
+    # Remove webhook, it fails sometimes the set if there is a previous webhook
+    #bot.remove_webhook()
+
+    # Set webhook
+    #bot.set_webhook(url=WEBHOOK_URL_BASE+WEBHOOK_URL_PATH,
+    #                certificate=open(constants.WEBHOOK_SSL_CERT, 'rb'))
+
+    return 'hello',200
+
+
+@app.route('/hello', methods=['GET', 'HEAD'])
+def hello():
+    return 'hello bot',200
+
+#@bot.message_handler(commands=['start', 'help'])
+#def startCommand(message):
+#    bot.send_message(message.chat.id, 'Hi *' + message.chat.first_name + '*!' , parse_mode='Markdown', reply_markup=types.ReplyKeyboardRemove())
+
 
 BOT_URL = 'https://api.telegram.org/bot'+teletoken.token+'/'
 # our telegram bot
-bot = telebot.TeleBot(teletoken.token);
 
 # настройки для журнала
 logger = logging.getLogger('log')
@@ -361,22 +408,4 @@ def  test_callback(call):
         logger.exception(str(e))
 
 
-
-
-
-def main():
-
-    try:
-        bot.polling(none_stop=True)
-    except BaseException as e:
-        logger.exception(str(e))
-        time.sleep(1)
-
-    while True:
-        pass
-
-if __name__ == '__main__':
-
-    #app = Flask(__name__)
-    main()
 
