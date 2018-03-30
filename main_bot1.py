@@ -39,7 +39,7 @@ def webhook():
     return "ok", 200
 
 # Empty webserver index, return nothing, just http 200
-@app.route('/', methods=['GET', 'HEAD'])
+@app.route('/', methods=['GET', 'HEAD', 'POST'])
 def index():
 
     bot.remove_webhook()
