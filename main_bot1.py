@@ -5,6 +5,11 @@ import constants
 import time
 import logging
 from flask import Flask, request
+from credentials import *
+#from botik import app
+app = Flask(__name__)
+from flask_sqlalchemy import SQLAlchemy
+
 from telebot import types
 import json
 import requests
@@ -12,6 +17,8 @@ from likes import *
 #import mysql_bot;
 from telebot import types
 
+app.config.from_object('credentials')
+db = SQLAlchemy(app)
 
 WEBHOOK_URL_BASE = "https://%s" % (constants.WEBHOOK_HOST)
 WEBHOOK_URL_PATH = "/%s/" % (teletoken.token)
@@ -23,7 +30,7 @@ bot = telebot.TeleBot(teletoken.token, threaded=False)
 #time.sleep(1)
 #bot.set_webhook(url=WEBHOOK_URL_BASE+"/{}".format(secret))
 
-app = Flask(__name__)
+#app = Flask(__name__)
 
 @app.route('/{}'.format(secret), methods=["POST"])
 def webhook():
@@ -36,10 +43,10 @@ def webhook():
 def index():
 
     bot.remove_webhook()
-    time.sleep(1)
-    bot.set_webhook(url=WEBHOOK_URL_BASE+"/{}".format(secret))
-    
-    
+#    time.sleep(1)
+#    bot.set_webhook(url=WEBHOOK_URL_BASE+"/{}".format(secret))
+
+
     # Remove webhook, it fails sometimes the set if there is a previous webhook
     #bot.remove_webhook()
 
@@ -47,12 +54,12 @@ def index():
     #bot.set_webhook(url=WEBHOOK_URL_BASE+WEBHOOK_URL_PATH,
     #                certificate=open(constants.WEBHOOK_SSL_CERT, 'rb'))
 
-    return 'hello',200
+    return 'hello '+time.ctime(),200
 
 
 @app.route('/hello', methods=['GET', 'HEAD'])
 def hello():
-    return 'hello bot',200
+    return 'hello bot '+time.ctime(),200
 
 #@bot.message_handler(commands=['start', 'help'])
 #def startCommand(message):
@@ -137,8 +144,9 @@ def sendmesquery(message, txt, repmarkup=None, typemsg=1, imgtext=None, chat_id=
 def sendmesquerylike(message, CHANNEL_NAME):
     try:
         data = {'chat_id': CHANNEL_NAME,
-                'text': message,
-                'reply_markup': json.dumps(reply_markup_mass['0']['reply_markup'])}
+                'text': message#,
+                #'reply_markup': json.dumps(reply_markup_mass['0']['reply_markup'])
+                }
         requests.get(BOT_URL+'sendMessage',data = data)
         return 0;
     except BaseException as e:
@@ -396,16 +404,32 @@ def default_audio(message):  # Получить номер телефона
         logger.exception("ИД чата - " + str(chat_id) + " - " + str(e))
 
 
-@bot.callback_query_handler(func=lambda call: True)
-def  test_callback(call):
-    #logger.info(call)
-    try:
+#@bot.callback_query_handler(func=lambda call: True)
+#def  test_callback(call):
+#    #logger.info(call)
+#    try:
+#
+#        editMessageReplyMarkup(str(call.message.chat.id),str(call.message.message_id),str(call.from_user.id),str(call.data) )
+#        #editMessageReplyMarkup(str(call.id),str(call.from_user.id),str(call.data) )
+#        return
+#    except BaseException as e:
+#        logger.exception(str(e))
 
-        editMessageReplyMarkup(str(call.message.chat.id),str(call.message.message_id),str(call.from_user.id),str(call.data) )
-        #editMessageReplyMarkup(str(call.id),str(call.from_user.id),str(call.data) )
-        return
-    except BaseException as e:
-        logger.exception(str(e))
 
 
+class db_likes(db.Model):
 
+    __tablename__ = "t_likes"
+
+    message_id = db.Column(db.String(255), primary_key=True)
+    user_id = db.Column(db.String(255), primary_key=True)
+    choice_value = db.Column(db.String(255))
+
+    def __init__(self, message_id, user_id, choice_value):
+        self.message_id = message_id
+        self.user_id = user_id
+        self.choice_value = choice_value
+
+
+    def __repr__(self):
+        return '<user message_id=%r,user_id=%r,choice_value=%r>' % (self.message_id, self.user_id, self.choice_value)
