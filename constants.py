@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #CHANNEL_NAME = '-1001351153971' #канал вопросов
-CHANNEL_NAME = '@test_chanckbi'
+#CHANNEL_NAME = '@ckmeet_questions' # PROM
+CHANNEL_NAME = '@test_chanckbi' # TEST
 CHANNEL_NAME_ADM = '-1001315761021'
 #TOKEN = app.config['TOKEN']
 #WEBHOOKURL = app.config['WEBHOOKURL']
